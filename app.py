@@ -12,10 +12,9 @@ summary_agent = SummaryAgent()
 
 st.title("🧽 Scrub Daddy YouTube Tracker 2.0")
 
-# User input prompt
 user_input = st.text_input("Ask me something:", placeholder="e.g. Show top videos this week")
 
-# Load video data (mock or real)
+# Load YouTube data
 videos = yt_agent.load_video_data()
 
 if not isinstance(videos, list) or len(videos) == 0:
@@ -23,24 +22,31 @@ if not isinstance(videos, list) or len(videos) == 0:
 else:
     df = pd.DataFrame(videos)
 
+    def make_video_link(video_id, title):
+        return f"[{title}](https://www.youtube.com/watch?v={video_id})"
+
+    def format_creator(name, subs):
+        return f"{name} ({subs} subscribers)" if subs else name
+
+    if "video_id" in df.columns and "Title" in df.columns:
+        df["Video"] = df.apply(lambda row: make_video_link(row["video_id"], row["Title"]), axis=1)
+
+    if "Channel" in df.columns and "Subscribers" in df.columns:
+        df["Creator"] = df.apply(lambda row: format_creator(row["Channel"], row["Subscribers"]), axis=1)
+    elif "Channel" in df.columns:
+        df["Creator"] = df["Channel"]
+
+    # Process query
     lowered = user_input.lower()
 
     if "top" in lowered or "most viewed" in lowered or "most liked" in lowered:
-        def make_clickable(video_id):
-            return f"[Watch](https://www.youtube.com/watch?v={video_id})"
-
-        top_views = df.sort_values(by="Views", ascending=False).head(5)
-        top_likes = df.sort_values(by="Likes", ascending=False).head(5)
-
         st.subheader("📈 Top 5 Videos by Views")
-        if "video_id" in top_views.columns:
-            top_views["Video Link"] = top_views["video_id"].apply(make_clickable)
-        st.dataframe(top_views)
+        top_views = df.sort_values(by="Views", ascending=False).head(5)
+        st.dataframe(top_views[["Video", "Creator", "Views", "Likes"]])
 
         st.subheader("❤️ Top 5 Videos by Likes")
-        if "video_id" in top_likes.columns:
-            top_likes["Video Link"] = top_likes["video_id"].apply(make_clickable)
-        st.dataframe(top_likes)
+        top_likes = df.sort_values(by="Likes", ascending=False).head(5)
+        st.dataframe(top_likes[["Video", "Creator", "Views", "Likes"]])
 
     elif "summary" in lowered or "recap" in lowered or "week" in lowered:
         summary = summary_agent.summarize(df)
