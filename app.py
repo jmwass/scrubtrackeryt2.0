@@ -48,7 +48,9 @@ else:
 
         st.subheader("❤️ Top 5 Videos by Likes")
         top_likes = df.sort_values(by="Likes", ascending=False).head(5)
-        st.dataframe(top_likes[["Video", "Creator", "Views", "Likes"]])
+        top_views["Link"] = top_views["URL"].apply(lambda x: f"[Watch]({x})")
+        st.dataframe(top_views[["Title", "Link", "Channel", "Subscribers", "Views", "Likes"]])
+
 
     elif "summary" in lowered or "recap" in lowered or "week" in lowered:
         summary = summary_agent.summarize(df)
