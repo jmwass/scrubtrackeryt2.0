@@ -1,23 +1,22 @@
 import os
-from langchain_community.chat_models import ChatGroq
-from langchain.schema import HumanMessage
+from openai import OpenAI
 
 class SummaryAgent:
     def __init__(self):
-        self.api_key = os.getenv("GROQ_API_KEY")
+        self.api_key = os.getenv("OPENAI_API_KEY")
         if not self.api_key:
-            raise ValueError("GROQ_API_KEY is missing in environment variables.")
-        self.client = ChatGroq(
-            groq_api_key=self.api_key,
-            model="mixtral-8x7b-32768"
-        )
+            raise ValueError("OPENAI_API_KEY not found in environment variables.")
+        self.client = OpenAI(api_key=self.api_key)
 
     def summarize(self, prompt):
         try:
-            messages = [
-                HumanMessage(content=f"Please summarize the following:\n\n{prompt}")
-            ]
-            response = self.client(messages)
-            return response.content
+            response = self.client.chat.completions.create(
+                model="gpt-4",
+                messages=[
+                    {"role": "system", "content": "You are a helpful YouTube analytics assistant that summarizes content."},
+                    {"role": "user", "content": f"Please summarize the following YouTube content:\n\n{prompt}"}
+                ]
+            )
+            return response.choices[0].message.content
         except Exception as e:
             return f"SummaryAgent error: {e}"
