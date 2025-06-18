@@ -83,7 +83,7 @@ if user_input:
 
         # Trigger summary request (general)
         elif "summarize" in lowered or "what are people saying" in lowered:
-summary = summary_agent.run(st.session_state.memory["topic"])
+            summary = summary_agent.run(st.session_state.memory["topic"])
             st.markdown(f"**Summary:** {summary}")
 
         # Trigger analytics
