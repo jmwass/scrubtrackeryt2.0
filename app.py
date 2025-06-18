@@ -42,7 +42,9 @@ else:
     if "top" in lowered or "most viewed" in lowered or "most liked" in lowered:
         st.subheader("📈 Top 5 Videos by Views")
         top_views = df.sort_values(by="Views", ascending=False).head(5)
-        st.dataframe(top_views[["Video", "Creator", "Views", "Likes"]])
+        top_views["Link"] = top_views["URL"].apply(lambda x: f"[Watch]({x})")
+        st.dataframe(top_views[["Title", "Link", "Channel", "Subscribers", "Views", "Likes"]])
+
 
         st.subheader("❤️ Top 5 Videos by Likes")
         top_likes = df.sort_values(by="Likes", ascending=False).head(5)
