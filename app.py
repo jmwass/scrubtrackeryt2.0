@@ -1,69 +1,56 @@
-import os
 import streamlit as st
-import pandas as pd
 from agents.youtube_agent import YouTubeAgent
-from agents.summary_agent import SummaryAgent
 from agents.analytics_agent import AnalyticsAgent
+from agents.summary_agent import SummaryAgent
+import pandas as pd
 
-# App title and layout
 st.set_page_config(page_title="Scrub Daddy Tracker 2.0", layout="wide")
-st.title("🧽 Scrub Daddy YouTube Tracker – Agentic Edition")
 
-# Initialize agents
 yt_agent = YouTubeAgent()
-summary_agent = SummaryAgent()
 analytics_agent = AnalyticsAgent()
+summary_agent = SummaryAgent()
 
-# Sidebar navigation
-selected_mode = st.sidebar.selectbox("Choose a mode", ["📊 Weekly Overview", "💬 Agent Chat"])
+st.title("🧽 Scrub Daddy YouTube Tracker 2.0")
 
-# Weekly Overview Mode
-if selected_mode == "📊 Weekly Overview":
-    st.subheader("🔥 Top Videos by Views")
-    videos = yt_agent.load_video_data()
+# User input prompt
+user_input = st.text_input("Ask me something:", placeholder="e.g. Show top videos this week")
 
-    if isinstance(videos, list):
-        df = pd.DataFrame(videos)
-        top_views = df.sort_values(by="Views", ascending=False).head(10)
+# Load video data (mock or real)
+videos = yt_agent.load_video_data()
 
-        # Create clickable video links
+if not isinstance(videos, list) or len(videos) == 0:
+    st.warning("No video data found.")
+else:
+    df = pd.DataFrame(videos)
+
+    lowered = user_input.lower()
+
+    if "top" in lowered or "most viewed" in lowered or "most liked" in lowered:
         def make_clickable(video_id):
-            return f"[Link](https://www.youtube.com/watch?v={video_id})"
+            return f"[Watch](https://www.youtube.com/watch?v={video_id})"
 
-        top_views["Video Link"] = top_views["video_id"].apply(make_clickable)
-        st.dataframe(top_views[["Title", "Views", "Likes", "Video Link"]], use_container_width=True)
+        top_views = df.sort_values(by="Views", ascending=False).head(5)
+        top_likes = df.sort_values(by="Likes", ascending=False).head(5)
 
-        st.subheader("🔥 Top Videos by Likes")
-        top_likes = df.sort_values(by="Likes", ascending=False).head(10)
-        top_likes["Video Link"] = top_likes["video_id"].apply(make_clickable)
-        st.dataframe(top_likes[["Title", "Views", "Likes", "Video Link"]], use_container_width=True)
-    else:
-        st.warning("Could not load video data. Please try again later.")
+        st.subheader("📈 Top 5 Videos by Views")
+        if "video_id" in top_views.columns:
+            top_views["Video Link"] = top_views["video_id"].apply(make_clickable)
+        st.dataframe(top_views)
 
-# Agent Chat Mode
-elif selected_mode == "💬 Agent Chat":
-    st.subheader("💬 Ask a Question")
-    user_input = st.text_input("Type your prompt here...")
+        st.subheader("❤️ Top 5 Videos by Likes")
+        if "video_id" in top_likes.columns:
+            top_likes["Video Link"] = top_likes["video_id"].apply(make_clickable)
+        st.dataframe(top_likes)
 
-    if "memory" not in st.session_state:
-        st.session_state.memory = {"topic": "Scrub Daddy", "exclude": ["shark", "shark tank"]}
+    elif "summary" in lowered or "recap" in lowered or "week" in lowered:
+        summary = summary_agent.summarize(df)
+        st.markdown("### 📝 Weekly Summary")
+        st.markdown(summary)
 
-    if user_input:
-        lowered = user_input.lower()
+    elif "analytics" in lowered or "engagement" in lowered:
+        result = analytics_agent.get_engagement(df)
+        st.markdown("### 📊 Engagement Stats")
+        st.markdown(result)
 
-        if "top videos" in lowered:
-            videos = yt_agent.load_video_data()
-            if isinstance(videos, list):
-                df = pd.DataFrame(videos)
-                top_views = df.sort_values(by="Views", ascending=False).head(10)
-                st.session_state.memory["topic"] = "\n".join([f"{v['Title']}: {v['Description']}" for v in videos])
-                st.markdown("**Top 10 Videos by Views:**")
-                st.dataframe(top_views)
-        elif "summarize" in lowered or "what are people saying" in lowered:
-            summary = summary_agent.summarize(st.session_state.memory["topic"])
-            st.markdown(f"**Summary:** {summary}")
-        elif "analytics" in lowered or "engagement" in lowered:
-            results = analytics_agent.get_engagement(st.session_state.memory["topic"])
-            st.markdown(f"**Analytics Results:** {results}")
-        else:
-            st.info("Try commands like 'Show me top videos', 'Summarize this week's trends', or 'Filter out Shark Tank.'")
+    elif user_input.strip() != "":
+        st.info("Try asking: 'Show top videos', 'Run analytics', or 'Summarize this week'.")
