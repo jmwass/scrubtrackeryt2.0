@@ -1,0 +1,22 @@
+name: Weekly Scrub Tracker Refresh
+
+on:
+  schedule:
+    - cron: '0 0 * * 1'  # every Monday at 12 AM UTC
+  workflow_dispatch:  # optional manual trigger
+
+jobs:
+  refresh:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v3
+
+      - name: Bump timestamp to trigger Streamlit redeploy
+        run: |
+          echo "// 🕒 Auto-refresh: $(date -u)" > refresh_trigger.js
+          git config user.name "autobot"
+          git config user.email "auto@bot.com"
+          git add refresh_trigger.js
+          git commit -m "🤖 Weekly refresh"
+          git push
