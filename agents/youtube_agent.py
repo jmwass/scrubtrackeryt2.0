@@ -10,6 +10,15 @@ class YouTubeAgent:
     def search_youtube(self, query="Scrub Daddy", days_back=7):
         today = datetime.utcnow()
         one_week_ago = today - timedelta(days=days_back)
+        
+        def load_video_data(self):
+    # Your YouTube API logic here to load videos
+    # Return a list of dicts like:
+    return [
+        {"Title": "My Scrub Daddy Review", "Views": 10452, "Likes": 630},
+        {"Title": "Scrub Daddy Hack Compilation", "Views": 27000, "Likes": 900},
+        # ...
+    ]
 
         published_after = one_week_ago.isoformat("T") + "Z"
         published_before = today.isoformat("T") + "Z"
