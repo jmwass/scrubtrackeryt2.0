@@ -3,4 +3,5 @@ openai
 python-dotenv
 google-api-python-client
 langchain
+langchain-community
 groq
