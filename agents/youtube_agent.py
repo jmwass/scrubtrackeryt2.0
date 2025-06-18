@@ -11,14 +11,16 @@ class YouTubeAgent:
         today = datetime.utcnow()
         one_week_ago = today - timedelta(days=days_back)
         
-        def load_video_data(self):
-    # Your YouTube API logic here to load videos
-    # Return a list of dicts like:
-    return [
-        {"Title": "My Scrub Daddy Review", "Views": 10452, "Likes": 630},
-        {"Title": "Scrub Daddy Hack Compilation", "Views": 27000, "Likes": 900},
-        # ...
-    ]
+   # agents/youtube_agent.py
+
+class YouTubeAgent:
+    def load_video_data(self):
+        return [
+            {"Title": "My Scrub Daddy Review", "Views": 10452, "Likes": 630},
+            {"Title": "Scrub Daddy Hack Compilation", "Views": 27000, "Likes": 900},
+            {"Title": "Sponge Daddy Deep Clean", "Views": 18300, "Likes": 720},
+            {"Title": "Scrub Daddy vs Tough Stains", "Views": 31200, "Likes": 1100},
+        ]
 
         published_after = one_week_ago.isoformat("T") + "Z"
         published_before = today.isoformat("T") + "Z"
