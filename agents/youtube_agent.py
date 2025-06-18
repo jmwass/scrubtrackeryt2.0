@@ -17,7 +17,7 @@ class YouTubeAgent:
         search_response = self.youtube.search().list(
             q="Scrub Daddy",
             part="snippet",
-            maxResults=50,
+            maxResults=60,
             type="video",
             order="viewCount",
             publishedAfter=published_after,
