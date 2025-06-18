@@ -1,47 +1,50 @@
 import os
-import requests
+from googleapiclient.discovery import build
 from datetime import datetime, timedelta
 
 class YouTubeAgent:
     def __init__(self):
         self.api_key = os.getenv("YOUTUBE_API_KEY")
-        self.base_url = "https://www.googleapis.com/youtube/v3/search"
+        self.youtube = build("youtube", "v3", developerKey=self.api_key)
 
-    def run(self, prompt):
-        if "scrub daddy" not in prompt.lower():
-            return "Please include 'Scrub Daddy' in your search query."
+    def search_youtube(self, query="Scrub Daddy", days_back=7):
+        today = datetime.utcnow()
+        one_week_ago = today - timedelta(days=days_back)
 
-        # Set time window: last 7 days
-        published_after = (datetime.utcnow() - timedelta(days=7)).isoformat("T") + "Z"
+        published_after = one_week_ago.isoformat("T") + "Z"
+        published_before = today.isoformat("T") + "Z"
 
-        params = {
-            "part": "snippet",
-            "q": "Scrub Daddy",
-            "type": "video",
-            "order": "viewCount",
-            "publishedAfter": published_after,
-            "maxResults": 10,
-            "key": self.api_key
-        }
+        search_response = self.youtube.search().list(
+            q=query,
+            part="snippet",
+            maxResults=25,
+            type="video",
+            order="viewCount",
+            publishedAfter=published_after,
+            publishedBefore=published_before
+        ).execute()
 
-        response = requests.get(self.base_url, params=params)
-        if response.status_code != 200:
-            return f"Failed to fetch from YouTube API: {response.status_code}"
+        video_data = []
+        exclusion_keywords = ["shark", "shark tank", "sharktank"]
 
-        items = response.json().get("items", [])
-        results = []
+        for item in search_response["items"]:
+            title = item["snippet"]["title"].lower()
+            description = item["snippet"].get("description", "").lower()
 
-        for item in items:
+            # Exclude Scrub Daddy's own channel
+            if item["snippet"]["channelTitle"].lower() == "scrub daddy":
+                continue
+
+            # Exclude based on shark-related keywords
+            if any(keyword in title or keyword in description for keyword in exclusion_keywords):
+                continue
+
             video_id = item["id"]["videoId"]
-            title = item["snippet"]["title"]
-            channel = item["snippet"]["channelTitle"]
-            video_url = f"https://www.youtube.com/watch?v={video_id}"
+            channel_id = item["snippet"]["channelId"]
+            video_data.append({
+                "Video ID": video_id,
+                "Title": item["snippet"]["title"],
+                "Channel ID": channel_id
+            })
 
-            # Filter out Scrub Daddy's official channel
-            if "Scrub Daddy" not in channel:
-                results.append(f"- [{title}]({video_url}) by **{channel}**")
-
-        if not results:
-            return "No trending Scrub Daddy videos found (outside the brand channel)."
-
-        return "\n".join(results)
+        return video_data
