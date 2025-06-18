@@ -18,11 +18,7 @@ class AnalyticsAgent:
             avg_likes = df["Likes"].mean()
             df["Engagement Rate (%)"] = (df["Likes"] / df["Views"]) * 100
             top_video = df.sort_values(by="Views", ascending=False).iloc[0]
-[
-  {"Title": "My Scrub Daddy Review", "Views": 10452, "Likes": 630},
-  {"Title": "Scrub Daddy Hack Compilation", "Views": 27000, "Likes": 900},
-  ...
-]
+
             
             summary = (
                 f"📊 **YouTube Analytics Summary:**\n\n"
