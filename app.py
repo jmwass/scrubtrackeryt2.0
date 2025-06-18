@@ -62,23 +62,21 @@ else:
                     unsafe_allow_html=True
                 )
 
-        # === Summary using GPT ===
-        elif "summary" in lowered or "summarize" in lowered:
-            st.subheader("📝 Weekly Summary")
-            text_to_summarize = "\n".join([f"{v['Title']}: {v.get('Description', '')}" for v in videos])
-            result = summary_agent.summarize(text_to_summarize)
-            st.markdown(result)
+    elif "summary" in lowered or "summarize" in lowered:
+        st.subheader("📝 Weekly Summary")
+        text_to_summarize = "\n".join([f"{v['Title']}: {v.get('Description', '')}" for v in videos])
+        result = summary_agent.summarize(text_to_summarize)
+        st.markdown(result)
 
-        # === Analytics ===
-        elif "analytics" in lowered or "engagement" in lowered:
-            st.subheader("📊 Engagement Analytics")
-            results = analytics_agent.get_engagement(videos)
-            st.markdown(results)
+    elif "analytics" in lowered or "engagement" in lowered:
+        st.subheader("📊 Engagement Analytics")
+        results = analytics_agent.get_engagement(videos)
+        st.markdown(results)
 
-        else:
-            st.info("Try asking things like: 'top videos', 'most liked', 'summary', or 'analytics'.")
-        elif "rising" in lowered or "reach out" in lowered or "up and coming" in lowered:  st.subheader("🌱 Rising Creators to Watch")
-            result = rising_agent.find_rising_creators(videos) st.markdown(result, unsafe_allow_html=True)
-        
-        else:
-    st.info("Try asking things like: 'top videos', 'most liked', 'summary', or 'analytics'.")
+    elif "rising" in lowered or "reach out" in lowered or "up and coming" in lowered:
+        st.subheader("🌱 Rising Creators to Watch")
+        result = rising_agent.find_rising_creators(videos)
+        st.markdown(result, unsafe_allow_html=True)
+
+    else:
+        st.info("Try asking things like: 'top videos', 'most liked', 'summary', 'analytics', or 'rising creators'.")
