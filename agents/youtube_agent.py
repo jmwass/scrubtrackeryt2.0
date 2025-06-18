@@ -9,7 +9,7 @@ class YouTubeAgent:
 
     def load_video_data(self):
         today = datetime.utcnow()
-        one_week_ago = today - timedelta(days=7)
+        one_week_ago = today - timedelta(days=30)
 
         published_after = one_week_ago.isoformat("T") + "Z"
         published_before = today.isoformat("T") + "Z"
@@ -17,7 +17,7 @@ class YouTubeAgent:
         search_response = self.youtube.search().list(
             q="Scrub Daddy",
             part="snippet",
-            maxResults=25,
+            maxResults=50,
             type="video",
             order="viewCount",
             publishedAfter=published_after,
