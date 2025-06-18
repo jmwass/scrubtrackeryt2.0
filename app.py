@@ -77,10 +77,8 @@ else:
 
         else:
             st.info("Try asking things like: 'top videos', 'most liked', 'summary', or 'analytics'.")
+        elif "rising" in lowered or "reach out" in lowered or "up and coming" in lowered:  st.subheader("🌱 Rising Creators to Watch")
+            result = rising_agent.find_rising_creators(videos) st.markdown(result, unsafe_allow_html=True)
         
-    
-        elif "rising" in lowered or "reach out" in lowered or "up and coming" in lowered:
-    st.subheader("🌱 Rising Creators to Watch")
-    result = rising_agent.find_rising_creators(videos)
-    st.markdown(result, unsafe_allow_html=True)
-
+        else:
+    st.info("Try asking things like: 'top videos', 'most liked', 'summary', or 'analytics'.")
