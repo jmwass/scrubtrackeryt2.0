@@ -4,84 +4,74 @@ from agents.analytics_agent import AnalyticsAgent
 from agents.summary_agent import SummaryAgent
 import pandas as pd
 
+# Page setup
 st.set_page_config(page_title="Scrub Daddy Tracker 2.0", layout="wide")
+st.title("🧽 Scrub Daddy YouTube Tracker 2.0")
 
+# Load agents
 yt_agent = YouTubeAgent()
 analytics_agent = AnalyticsAgent()
 summary_agent = SummaryAgent()
 
-st.title("🧽 Scrub Daddy YouTube Tracker 2.0")
-
-user_input = st.text_input("Ask me something:", placeholder="e.g. Show top videos this week")
-
-# Load YouTube data
+# Load data
 videos = yt_agent.load_video_data()
 
-if not isinstance(videos, list) or len(videos) == 0:
+if not videos:
     st.warning("No video data found.")
 else:
     df = pd.DataFrame(videos)
 
-    def make_video_link(video_id, title):
-        return f"[{title}](https://www.youtube.com/watch?v={video_id})"
+    user_input = st.text_input("💬 Ask a question (e.g. 'top videos', 'summary', 'analytics'):")
 
-    def format_creator(name, subs):
-        return f"{name} ({subs} subscribers)" if subs else name
+    if user_input:
+        lowered = user_input.lower()
 
-    if "video_id" in df.columns and "Title" in df.columns:
-        df["Video"] = df.apply(lambda row: make_video_link(row["video_id"], row["Title"]), axis=1)
+        # === Top Videos by Views ===
+        if "top" in lowered or "views" in lowered or "most viewed" in lowered:
+            st.subheader("📈 Top 5 Videos by Views")
+            top_views = df.sort_values(by="Views", ascending=False).head(5)
 
-    if "Channel" in df.columns and "Subscribers" in df.columns:
-        df["Creator"] = df.apply(lambda row: format_creator(row["Channel"], row["Subscribers"]), axis=1)
-    elif "Channel" in df.columns:
-        df["Creator"] = df["Channel"]
+            for _, row in top_views.iterrows():
+                st.markdown(
+                    f"""
+                    **{row['Title']}**  
+                    👤 Channel: {row['Channel']} ({row.get('Subscribers', 'N/A')} subscribers)  
+                    👀 Views: {row['Views']:,} 👍 Likes: {row['Likes']:,}  
+                    🔗 [▶️ Watch on YouTube]({row['URL']})
+                    ---
+                    """,
+                    unsafe_allow_html=True
+                )
 
-    # Process query
-    lowered = user_input.lower()
+        # === Top Videos by Likes ===
+        elif "likes" in lowered or "liked" in lowered:
+            st.subheader("❤️ Top 5 Videos by Likes")
+            top_likes = df.sort_values(by="Likes", ascending=False).head(5)
 
-    if "top" in lowered or "most viewed" in lowered or "most liked" in lowered:
-      st.subheader("📈 Top 5 Videos by Views")
+            for _, row in top_likes.iterrows():
+                st.markdown(
+                    f"""
+                    **{row['Title']}**  
+                    👤 Channel: {row['Channel']} ({row.get('Subscribers', 'N/A')} subscribers)  
+                    👀 Views: {row['Views']:,} 👍 Likes: {row['Likes']:,}  
+                    🔗 [▶️ Watch on YouTube]({row['URL']})
+                    ---
+                    """,
+                    unsafe_allow_html=True
+                )
 
-top_views = df.sort_values(by="Views", ascending=False).head(5)
+        # === Summary using GPT ===
+        elif "summary" in lowered or "summarize" in lowered:
+            st.subheader("📝 Weekly Summary")
+            text_to_summarize = "\n".join([f"{v['Title']}: {v.get('Description', '')}" for v in videos])
+            result = summary_agent.summarize(text_to_summarize)
+            st.markdown(result)
 
-for _, row in top_views.iterrows():
-    st.markdown(
-        f"""
-        **{row['Title']}**  
-        👤 Channel: {row['Channel']}  
-        👀 Views: {row['Views']:,} 👍 Likes: {row['Likes']:,}  
-        🔗 [Watch on YouTube]({row['URL']})
-        ---
-        """,
-        unsafe_allow_html=True
-    )
+        # === Analytics ===
+        elif "analytics" in lowered or "engagement" in lowered:
+            st.subheader("📊 Engagement Analytics")
+            results = analytics_agent.get_engagement(videos)
+            st.markdown(results)
 
-        st.subheader("📈 Top 5 Videos by Likes")
-
-top_views = df.sort_values(by="Likes", ascending=False).head(5)
-
-for _, row in top_views.iterrows():
-    st.markdown(
-        f"""
-        **{row['Title']}**  
-        👤 Channel: {row['Channel']}  
-        👀 Views: {row['Views']:,} 👍 Likes: {row['Likes']:,}  
-        🔗 [Watch on YouTube]({row['URL']})
-        ---
-        """,
-        unsafe_allow_html=True
-    )
-
-
-    elif "summary" in lowered or "recap" in lowered or "week" in lowered:
-        summary = summary_agent.summarize(df)
-        st.markdown("### 📝 Weekly Summary")
-        st.markdown(summary)
-
-    elif "analytics" in lowered or "engagement" in lowered:
-        result = analytics_agent.get_engagement(df)
-        st.markdown("### 📊 Engagement Stats")
-        st.markdown(result)
-
-    elif user_input.strip() != "":
-        st.info("Try asking: 'Show top videos', 'Run analytics', or 'Summarize this week'.")
+        else:
+            st.info("Try asking things like: 'top videos', 'most liked', 'summary', or 'analytics'.")
