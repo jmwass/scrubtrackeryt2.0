@@ -12,6 +12,7 @@ st.title("🧽 Scrub Daddy YouTube Tracker 2.0")
 # Load agents
 yt_agent = YouTubeAgent()
 analytics_agent = AnalyticsAgent()
+rising_agent = RisingAgent()
 summary_agent = SummaryAgent()
 
 # Load data
@@ -76,3 +77,10 @@ else:
 
         else:
             st.info("Try asking things like: 'top videos', 'most liked', 'summary', or 'analytics'.")
+        
+    
+        elif "rising" in lowered or "reach out" in lowered or "up and coming" in lowered:
+    st.subheader("🌱 Rising Creators to Watch")
+    result = rising_agent.find_rising_creators(videos)
+    st.markdown(result, unsafe_allow_html=True)
+
