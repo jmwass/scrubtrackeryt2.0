@@ -58,7 +58,30 @@ if user_input:
             else:
                 st.warning("No videos found after applying filters.")
 
-        # Trigger summary request
+        # Summarize top videos of the week
+        elif "summarize" in lowered and "week" in lowered:
+            videos = youtube_agent.search_youtube(
+                query=st.session_state.memory["topic"],
+                days_back=7
+            )
+
+            # Filter again based on exclusions
+            filtered = []
+            for video in videos:
+                title = video["Title"].lower()
+                description = video.get("Description", "").lower()
+                if not any(word in title or word in description for word in st.session_state.memory["exclude"]):
+                    filtered.append(video)
+
+            if filtered:
+                text_to_summarize = "\n".join([f"{v['Title']}: {v.get('Description', '')}" for v in filtered])
+                summary = summary_agent.summarize(text_to_summarize)
+                st.markdown("**Summary of top videos this week:**")
+                st.markdown(summary)
+            else:
+                st.warning("No videos available to summarize after filtering.")
+
+        # Trigger summary request (general)
         elif "summarize" in lowered or "what are people saying" in lowered:
             summary = summary_agent.summarize(st.session_state.memory["topic"])
             st.markdown(f"**Summary:** {summary}")
@@ -69,4 +92,4 @@ if user_input:
             st.markdown(f"**Analytics Results:** {results}")
 
         else:
-            st.info("Try commands like 'Show me top videos', 'Filter out Shark Tank', or 'Summarize trends'.")
+            st.info("Try commands like 'Show me top videos', 'Summarize this week's trends', or 'Filter out Shark Tank'.")
