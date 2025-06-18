@@ -1,16 +1,14 @@
-from datetime import datetime, timedelta
 import pandas as pd
 
 class RisingAgent:
     def find_rising_creators(self, video_data):
         try:
-            # Convert to DataFrame
             df = pd.DataFrame(video_data)
 
             if df.empty or "Subscribers" not in df.columns:
                 return "No creator data available."
 
-            # Filter creators: not Scrub Daddy, 10k–50k subs, recent videos
+            # Filter: not Scrub Daddy, 10k–50k subs, high views
             df = df[
                 (df["Channel"].str.lower() != "scrub daddy") &
                 (df["Subscribers"].between(10_000, 50_000)) &
@@ -20,7 +18,7 @@ class RisingAgent:
             if df.empty:
                 return "No rising creators found this week."
 
-            # Group by channel, aggregate views/likes
+            # Group by channel
             grouped = df.groupby("Channel").agg({
                 "Subscribers": "first",
                 "Views": "sum",
@@ -32,11 +30,11 @@ class RisingAgent:
             for idx, row in grouped.iterrows():
                 markdown += (
                     f"- **{idx}** ({row['Subscribers']:,} subs) — "
-                    f"**{row['Views']:,} views**, {row['Likes']:,} likes  
-                    🔗 [Recent Video]({row['URL']})\n"
+                    f"{row['Views']:,} views, {row['Likes']:,} likes  
+🔗 [Recent Video]({row['URL']})\n"
                 )
 
             return markdown
 
         except Exception as e:
-            return f"Rising Agent Error: {e}"
+            return f"RisingAgent error: {e}"
