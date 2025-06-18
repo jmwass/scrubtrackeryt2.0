@@ -1,4 +1,4 @@
-from langchain.chat_models import ChatGroq
+from langchain_community.chat_models import ChatGroq
 from langchain.schema import HumanMessage
 import os
 
