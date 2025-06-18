@@ -40,16 +40,37 @@ else:
     lowered = user_input.lower()
 
     if "top" in lowered or "most viewed" in lowered or "most liked" in lowered:
-        st.subheader("📈 Top 5 Videos by Views")
-        top_views = df.sort_values(by="Views", ascending=False).head(5)
-        top_views["Link"] = top_views["URL"].apply(lambda x: f"[Watch]({x})")
-        st.dataframe(top_views[["Title", "Link", "Channel", "Subscribers", "Views", "Likes"]])
+      st.subheader("📈 Top 5 Videos by Views")
 
+top_views = df.sort_values(by="Views", ascending=False).head(5)
 
-        st.subheader("❤️ Top 5 Videos by Likes")
-        top_likes = df.sort_values(by="Likes", ascending=False).head(5)
-        top_views["Link"] = top_views["URL"].apply(lambda x: f"[Watch]({x})")
-        st.dataframe(top_views[["Title", "Link", "Channel", "Subscribers", "Views", "Likes"]])
+for _, row in top_views.iterrows():
+    st.markdown(
+        f"""
+        **{row['Title']}**  
+        👤 Channel: {row['Channel']}  
+        👀 Views: {row['Views']:,} 👍 Likes: {row['Likes']:,}  
+        🔗 [Watch on YouTube]({row['URL']})
+        ---
+        """,
+        unsafe_allow_html=True
+    )
+
+        st.subheader("📈 Top 5 Videos by Likes")
+
+top_views = df.sort_values(by="Likes", ascending=False).head(5)
+
+for _, row in top_views.iterrows():
+    st.markdown(
+        f"""
+        **{row['Title']}**  
+        👤 Channel: {row['Channel']}  
+        👀 Views: {row['Views']:,} 👍 Likes: {row['Likes']:,}  
+        🔗 [Watch on YouTube]({row['URL']})
+        ---
+        """,
+        unsafe_allow_html=True
+    )
 
 
     elif "summary" in lowered or "recap" in lowered or "week" in lowered:
