@@ -20,8 +20,6 @@ st.subheader("🤖 Ask a Question")
 user_input = st.text_input("Type your prompt here...")
 
 if user_input:
-    if selected_agent == "YouTubeAgent":
-        response = yt_agent.run(user_input)
     elif selected_agent == "SummaryAgent":
         response = summary_agent.run(user_input)
     elif selected_agent == "AnalyticsAgent":
