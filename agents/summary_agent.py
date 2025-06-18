@@ -1,20 +1,20 @@
+from langchain.chat_models import ChatGroq
+from langchain.schema import HumanMessage
 import os
-from openai import OpenAI
 
 class SummaryAgent:
     def __init__(self):
-        self.api_key = os.getenv("OPENAI_API_KEY")
-        self.client = OpenAI(api_key=self.api_key)
+        self.client = ChatGroq(
+            groq_api_key=os.getenv("GROQ_API_KEY"),
+            model="mixtral-8x7b-32768"
+        )
 
-    def summarize(self, prompt):  # ✅ renamed from 'run' to 'summarize'
+    def summarize(self, prompt):
         try:
-            response = self.client.chat.completions.create(
-                model="gpt-4",
-                messages=[
-                    {"role": "system", "content": "You are a YouTube analytics summarizer."},
-                    {"role": "user", "content": f"Please summarize the following:\n\n{prompt}"}
-                ]
+            message = HumanMessage(
+                content=f"Please summarize the following YouTube video dataset for the past week:\n\n{prompt}"
             )
-            return response.choices[0].message.content
+            response = self.client([message])
+            return response.content
         except Exception as e:
             return f"Summary error: {e}"
