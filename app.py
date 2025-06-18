@@ -3,6 +3,7 @@ from agents.youtube_agent import YouTubeAgent
 from agents.analytics_agent import AnalyticsAgent
 from agents.summary_agent import SummaryAgent
 import pandas as pd
+from agents.rising_agent import RisingAgent
 
 # Page setup
 st.set_page_config(page_title="Scrub Daddy Tracker 2.0", layout="wide")
