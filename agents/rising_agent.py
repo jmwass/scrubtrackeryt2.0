@@ -8,18 +8,17 @@ class RisingAgent:
             if df.empty or "Subscribers" not in df.columns:
                 return "No creator data available."
 
-            # Filter: not Scrub Daddy, 10k–50k subs, high views
-            df = df[
+            # Filter criteria
+            filtered_df = df[
                 (df["Channel"].str.lower() != "scrub daddy") &
                 (df["Subscribers"].between(10_000, 50_000)) &
                 (df["Views"] > 5000)
             ]
 
-            if df.empty:
+            if filtered_df.empty:
                 return "No rising creators found this week."
 
-            # Group by channel
-            grouped = df.groupby("Channel").agg({
+            grouped = filtered_df.groupby("Channel").agg({
                 "Subscribers": "first",
                 "Views": "sum",
                 "Likes": "sum",
@@ -30,8 +29,8 @@ class RisingAgent:
             for idx, row in grouped.iterrows():
                 markdown += (
                     f"- **{idx}** ({row['Subscribers']:,} subs) — "
-                    f"{row['Views']:,} views, {row['Likes']:,} likes  
-🔗 [Recent Video]({row['URL']})\n"
+                    f"{row['Views']:,} views, {row['Likes']:,} likes  \n"
+                    f"🔗 [Recent Video]({row['URL']})\n\n"
                 )
 
             return markdown
