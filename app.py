@@ -1,7 +1,7 @@
 import streamlit as st
-from agents.youtube_agent import YouTubeAgent
-from agents.summary_agent import SummaryAgent
-from agents.analytics_agent import AnalyticsAgent
+from youtube_agent import YouTubeAgent
+from summary_agent import SummaryAgent
+from analytics_agent import AnalyticsAgent
 
 st.set_page_config(page_title="Scrub Daddy Agents", page_icon="🧽")
 st.title("🧽 Scrub Daddy YouTube Tracker – Agentic Edition")
