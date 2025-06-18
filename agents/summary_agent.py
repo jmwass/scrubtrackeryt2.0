@@ -6,7 +6,7 @@ class SummaryAgent:
         self.api_key = os.getenv("OPENAI_API_KEY")
         self.client = OpenAI(api_key=self.api_key)
 
-    def run(self, prompt):
+    def summarize(self, prompt):  # ✅ renamed from 'run' to 'summarize'
         try:
             response = self.client.chat.completions.create(
                 model="gpt-4",
@@ -17,4 +17,4 @@ class SummaryAgent:
             )
             return response.choices[0].message.content
         except Exception as e:
-            return f"Error from OpenAI: {e}"
+            return f"Summary error: {e}"
